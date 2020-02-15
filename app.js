@@ -21,6 +21,8 @@ mongoose.connection
 
 const motercycle = require('./models/motercycles');
 
+require('./services/cache')
+
 app.use(upload.array()); 
 app.use(express.static('public'));
 
