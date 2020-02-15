@@ -1,0 +1,15 @@
+{
+  "name": "redis-demo-project",
+  "version": "1.0.0",
+  "description": "a nodejs app using redis as cache",
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "subhrapaladhi",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1",
+    "mongoose": "^5.9.1"
+  }
+}
