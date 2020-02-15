@@ -5,12 +5,16 @@ const util = require('util')
 
 const redisUrl = 'redis://127.0.0.1:6379';
 const client = redis.createClient(redisUrl);
-client.get = util.promisify(client.get);                // client get does not support promises. this is a way to promisify them
+client.hget = util.promisify(client.hget);                // client get does not support promises. this is a way to promisify them
 
 const exec = mongoose.Query.prototype.exec
 
-mongoose.Query.prototype.cache = function(){
+mongoose.Query.prototype.cache = function(options = {}){
     this.useCache = true;
+
+    // this is the top level key like motercycles or cars or trucks etc
+    this.hashkey = JSON.stringify(options.key || '')
+
     return this;
 }
 
@@ -26,7 +30,7 @@ mongoose.Query.prototype.exec = async function(){
     let key = JSON.stringify(Object.assign({},this.getQuery(),{collection: this.mongooseCollection.name}));
 
     //see if we have a value for key in redis
-    const cacheValue = await client.get(key)
+    const cacheValue = await client.hget(this.hashkey, key)
 
     // if value for key exists then->
     if(cacheValue){
@@ -48,7 +52,7 @@ mongoose.Query.prototype.exec = async function(){
     *  then we can save it in reids
     */
 
-    client.set(key, JSON.stringify(result));
+    client.hset(this.hashkey, key, JSON.stringify(result));
 
     return result
 }

@@ -44,7 +44,7 @@ app.post('/motercycle',(req,res)=>{
 
 app.get('/motercycle/:sno', (req,res)=>{
     motercycle.find({serialno: req.params.sno})
-                .cache()
+                .cache({key: 'motercycle'})
                 .then((data)=>{
                     if(data){
                         res.json({found: true, data: data})
