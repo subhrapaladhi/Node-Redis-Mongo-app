@@ -52,9 +52,22 @@ mongoose.Query.prototype.exec = async function(){
     *  then we can save it in reids
     */
 
-    client.hset(this.hashkey, key, JSON.stringify(result));
+    if(result){
+        if(Array.isArray(result) && result.length==0){
+            console.log("data not present")
+            return null
+        }
+        else{
+            console.log("data is there")
+            client.hset(this.hashkey, key, JSON.stringify(result));
+            return result
+        }
+    }else{
+        console.log("data not present")
+        return null
+    }
 
-    return result
+    
 }
 
 module.exports = 

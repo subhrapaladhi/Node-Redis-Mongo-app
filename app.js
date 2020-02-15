@@ -20,7 +20,7 @@ mongoose.connection
         .once('open', ()=>console.log('connected to database'))
         .on('error',(err)=>console.log("connection to database failed!!",err))
 
-const motercycle = require('./models/motercycles');
+const vehicle = require('./models/vehicle');
 
 require('./services/cache')
 
@@ -30,13 +30,13 @@ app.use(express.static('public'));
 // ROUTES
 
 // motercycle routes
-app.post('/motercycle',(req,res)=>{
-    new motercycle(req.body)
+app.post('/vehicle',(req,res)=>{
+    new vehicle(req.body)
         .save()
-        .then((mc_data)=>{
-            console.log(mc_data);
+        .then((v_data)=>{
+            console.log(v_data);
             res.json({save: true})
-            clearHash('motercycle')
+            clearHash(v_data.vehicleType)
         })
         .catch((err)=>{
             console.log(err)
@@ -44,9 +44,9 @@ app.post('/motercycle',(req,res)=>{
         })
 })
 
-app.get('/motercycle/:sno', (req,res)=>{
-    motercycle.find({serialno: req.params.sno})
-                .cache({key: 'motercycle'})
+app.get('/:vehicleType/:sno', (req,res)=>{
+    vehicle.find({serialno: req.params.sno,vehicleType: req.params.vehicleType})
+                .cache({key: req.params.vehicleType})
                 .then((data)=>{
                     if(data){
                         res.json({found: true, data: data})
