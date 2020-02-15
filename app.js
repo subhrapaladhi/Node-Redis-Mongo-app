@@ -59,11 +59,11 @@ app.get('/motercycle/:sno', (req,res)=>{
 })
 
 // cars routes
-app.post('/motercycle',(req,res)=>{
-    new motercycle(req.body)
+app.post('/car',(req,res)=>{
+    new car(req.body)
         .save()
-        .then((mc_data)=>{
-            console.log(mc_data);
+        .then((car_data)=>{
+            console.log(car_data);
             res.json({save: true})
         })
         .catch((err)=>{
@@ -72,8 +72,8 @@ app.post('/motercycle',(req,res)=>{
         })
 })
 
-app.get('/motercycle/:sno', (req,res)=>{
-    motercycle.find({serialno: req.params.sno})
+app.get('/car/:sno', (req,res)=>{
+    car.find({serialno: req.params.sno})
                 .then((data)=>{
                     if(data){
                         res.json({found: true, data: data})
@@ -89,11 +89,11 @@ app.get('/motercycle/:sno', (req,res)=>{
 
 
 // trucks routes
-app.post('/motercycle',(req,res)=>{
-    new motercycle(req.body)
+app.post('/truck',(req,res)=>{
+    new truck(req.body)
         .save()
-        .then((mc_data)=>{
-            console.log(mc_data);
+        .then((truck_data)=>{
+            console.log(truck_data);
             res.json({save: true})
         })
         .catch((err)=>{
@@ -102,7 +102,7 @@ app.post('/motercycle',(req,res)=>{
         })
 })
 
-app.get('/motercycle/:sno', (req,res)=>{
+app.get('/truck/:sno', (req,res)=>{
     motercycle.find({serialno: req.params.sno})
                 .then((data)=>{
                     if(data){
