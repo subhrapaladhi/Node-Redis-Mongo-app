@@ -3,7 +3,8 @@ const   express     = require("express"),
         mongoose    = require("mongoose"),
         bodyParser  = require("body-parser"),
         multer      = require("multer"),
-        upload      = multer()
+        upload      = multer(),
+        clearHash   = require('./services/cache')
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
@@ -35,6 +36,7 @@ app.post('/motercycle',(req,res)=>{
         .then((mc_data)=>{
             console.log(mc_data);
             res.json({save: true})
+            clearHash('motercycle')
         })
         .catch((err)=>{
             console.log(err)
