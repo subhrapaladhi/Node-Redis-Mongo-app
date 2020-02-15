@@ -20,9 +20,6 @@ mongoose.connection
         .on('error',(err)=>console.log("connection to database failed!!",err))
 
 const motercycle = require('./models/motercycles');
-const car = require('./models/cars');
-const truck = require('./models/trucks');
-
 
 app.use(upload.array()); 
 app.use(express.static('public'));
@@ -57,65 +54,5 @@ app.get('/motercycle/:sno', (req,res)=>{
                     res.json({found: false, data: null})
                 })
 })
-
-// cars routes
-app.post('/car',(req,res)=>{
-    new car(req.body)
-        .save()
-        .then((car_data)=>{
-            console.log(car_data);
-            res.json({save: true})
-        })
-        .catch((err)=>{
-            console.log(err)
-            res.json({save: false})
-        })
-})
-
-app.get('/car/:sno', (req,res)=>{
-    car.find({serialno: req.params.sno})
-                .then((data)=>{
-                    if(data){
-                        res.json({found: true, data: data})
-                    }else{
-                        res.json({found: false, data: null})
-                    }
-                })
-                .catch((err)=>{
-                    console.log(err)
-                    res.json({found: false, data: null})
-                })
-})
-
-
-// trucks routes
-app.post('/truck',(req,res)=>{
-    new truck(req.body)
-        .save()
-        .then((truck_data)=>{
-            console.log(truck_data);
-            res.json({save: true})
-        })
-        .catch((err)=>{
-            console.log(err)
-            res.json({save: false})
-        })
-})
-
-app.get('/truck/:sno', (req,res)=>{
-    motercycle.find({serialno: req.params.sno})
-                .then((data)=>{
-                    if(data){
-                        res.json({found: true, data: data})
-                    }else{
-                        res.json({found: false, data: null})
-                    }
-                })
-                .catch((err)=>{
-                    console.log(err)
-                    res.json({found: false, data: null})
-                })
-})
-
 
 app.listen(3000,()=>console.log("server started at port:3000"))
