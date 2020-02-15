@@ -9,8 +9,16 @@ client.get = util.promisify(client.get);                // client get does not s
 
 const exec = mongoose.Query.prototype.exec
 
+mongoose.Query.prototype.cache = function(){
+    this.useCache = true;
+    return this;
+}
+
 mongoose.Query.prototype.exec = async function(){
-    console.log('running a query')
+
+    if(!this.useCache){
+        return exec.apply(this, arguments)
+    }
 
     // this represents mongoose.Query.prototype.exec
     // we are not taking this.getQuery() as first object as we don't want it to be changed
