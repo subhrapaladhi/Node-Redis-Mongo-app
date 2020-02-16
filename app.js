@@ -46,6 +46,21 @@ app.post('/vehicle',(req,res)=>{
 
 app.get('/:vehicleType/', (req,res)=>{
     vehicle.find({vehicleType: req.params.vehicleType})
+                .then((data)=>{
+                    if(data){
+                        res.json({found: true, data: data})
+                    }else{
+                        res.json({found: false, data: null})
+                    }
+                })
+                .catch((err)=>{
+                    console.log(err)
+                    res.json({found: false, data: null})
+                })
+})
+
+app.get('/:vehicleType/:sno', (req,res)=>{
+    vehicle.find({serialno: req.params.sno,vehicleType: req.params.vehicleType})
                 .cache({key: req.params.vehicleType})
                 .then((data)=>{
                     if(data){
