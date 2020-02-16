@@ -44,8 +44,8 @@ app.post('/vehicle',(req,res)=>{
         })
 })
 
-app.get('/:vehicleType/:sno', (req,res)=>{
-    vehicle.find({serialno: req.params.sno,vehicleType: req.params.vehicleType})
+app.get('/:vehicleType/', (req,res)=>{
+    vehicle.find({vehicleType: req.params.vehicleType})
                 .cache({key: req.params.vehicleType})
                 .then((data)=>{
                     if(data){
