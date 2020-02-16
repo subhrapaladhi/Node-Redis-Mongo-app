@@ -9,11 +9,11 @@ client.hget = util.promisify(client.hget);                // client get does not
 
 const exec = mongoose.Query.prototype.exec
 
-mongoose.Query.prototype.cache = function(options = {}){
+mongoose.Query.prototype.cache = function(hkey){
     this.useCache = true;
 
     // this is the top level key like motercycles or cars or trucks etc
-    this.hashkey = JSON.stringify(options.key || '')
+    this.hashkey = JSON.stringify(hkey || '')
 
     return this;
 }

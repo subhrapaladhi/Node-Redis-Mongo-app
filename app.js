@@ -56,6 +56,7 @@ app.post('/vehicle',(req,res)=>{
 
 app.get('/:vehicleType/', (req,res)=>{
     vehicle.find({vehicleType: req.params.vehicleType})
+                .cache(req.params.vehicleType)
                 .then((data)=>{
                     if(data){
                         res.json({found: true, data: data})
@@ -71,7 +72,7 @@ app.get('/:vehicleType/', (req,res)=>{
 
 app.get('/:vehicleType/:sno', (req,res)=>{
     vehicle.find({serialno: req.params.sno,vehicleType: req.params.vehicleType})
-                .cache({key: req.params.vehicleType})
+                .cache(req.params.vehicleType)
                 .then((data)=>{
                     if(data){
                         res.json({found: true, data: data})
