@@ -3,8 +3,8 @@ const   express     = require("express"),
         mongoose    = require("mongoose"),
         bodyParser  = require("body-parser"),
         multer      = require("multer"),
-        upload      = multer(),
-        clearHash   = require('./services/cache')
+        upload      = multer()
+        clearCache   = require('./services/cache')
 
 app.use(bodyParser.json())
 app.use(bodyParser.urlencoded({extended: true}))
@@ -21,8 +21,6 @@ mongoose.connection
         .on('error',(err)=>console.log("connection to database failed!!",err))
 
 const vehicle = require('./models/vehicle');
-
-require('./services/cache')
 
 app.use(upload.array()); 
 app.use(express.static('public'));
@@ -46,7 +44,7 @@ app.post('/vehicle',(req,res)=>{
         .then((v_data)=>{
             console.log(v_data);
             res.json({save: true})
-            clearHash(v_data.vehicleType)
+            clearCache(v_data.vehicleType)
         })
         .catch((err)=>{
             console.log(err)
@@ -71,7 +69,7 @@ app.get('/:vehicleType/', (req,res)=>{
 })
 
 app.get('/:vehicleType/:sno', (req,res)=>{
-    vehicle.find({serialno: req.params.sno,vehicleType: req.params.vehicleType})
+    vehicle.findOne({serialno: req.params.sno,vehicleType: req.params.vehicleType})
                 .cache(req.params.vehicleType)
                 .then((data)=>{
                     if(data){

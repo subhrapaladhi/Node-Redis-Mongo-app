@@ -7,8 +7,6 @@ const redisUrl = 'redis://127.0.0.1:6379';
 const client = redis.createClient(redisUrl);
 client.hget = util.promisify(client.hget);                // client get does not support promises. this is a way to promisify them
 
-const exec = mongoose.Query.prototype.exec
-
 mongoose.Query.prototype.cache = function(hkey){
     this.useCache = true;
 
@@ -18,59 +16,62 @@ mongoose.Query.prototype.cache = function(hkey){
     return this;
 }
 
-mongoose.Query.prototype.exec = async function(){
+// We are storing the default exec() function in the exec variable
+const exec = mongoose.Query.prototype.exec 
 
+mongoose.Query.prototype.exec = async function(){ // Modifing the exec property of mongoose
+    // this = mongoose.Query.prototype.exec
+    // When useCache = false we should directly send the query to MongoDB and return the result to app.js
     if(!this.useCache){
         return exec.apply(this, arguments)
     }
 
-    // this represents mongoose.Query.prototype.exec
-    // we are not taking this.getQuery() as first object as we don't want it to be changed
-    //redis only accepts numbers and strings
+    /* Here is how our key looks
+     * key = '{query_param_1: param_1_value, query_param_2: param_2_value,...... , collectoin: collection name}'
+     * we need to stringigy the object before storing in redis cache
+    */
     let key = JSON.stringify(Object.assign({},this.getQuery(),{collection: this.mongooseCollection.name}));
 
-    //see if we have a value for key in redis
+    /* Querying the cache
+     * if value for key exists then, cacheValue = data
+     * else, cacheValue = null
+    */
     const cacheValue = await client.hget(this.hashkey, key)
-
-    // if value for key exists then->
+    
+    // When data is found in redis cache
     if(cacheValue){
-        // While storing data in redis we may store a single object or an array of objects.
-        // We need to convert the normal json into model instance
-        console.log(cacheValue)
-        const doc = JSON.parse(cacheValue)
+        const doc = JSON.parse(cacheValue)  // converting back to original datatype from string
 
+        /* While storing data in redis we may store a single object or an array of objects. 
+         * We need to convert normal json into mongoose model instance before returning to app.js, 
+         * this.model() is used for this purpose
+        */
         return  Array.isArray(doc)
                 ? doc.map((d)=>new this.model(d))
                 : new this.model(doc);
     }
 
-    // otherwise, get the data from Mongodb and save the data to redis also
-    const result = await exec.apply(this, arguments)
+    // Data not present in redis cache, get the data from Mongodb and save the data to redis cache also
+    const result = await exec.apply(this, arguments) // using the default exec function
 
-    /* Mongoose does not return plain json. It returns "model instance" which also have various functions
-    *  So we can't store result directly into redis. We need to convert it into pure json then stringify it 
-    *  then we can save it in reids
-    */
-
-    if(result){
+    // just some logic to check if the data for the required query is even present in the database
+    if(result){ // mongodb retured non-null value (can be empty array)
         if(Array.isArray(result) && result.length==0){
-            console.log("data not present")
+            // array is empty
             return null
         }
         else{
-            console.log("data is there")
-            client.hset(this.hashkey, key, JSON.stringify(result));
+            // data is there (non-empty array or an single object)
+            client.hset(this.hashkey, key, JSON.stringify(result)); // saving data in redis cache
             return result
         }
-    }else{
+    }else{ // database returned null value
         console.log("data not present")
         return null
-    }
-
-    
+    } 
 }
 
 module.exports = 
-    function clearHash(hashkey){
+    function clearCache(hashkey){
         client.del(JSON.stringify(hashkey))
     }
