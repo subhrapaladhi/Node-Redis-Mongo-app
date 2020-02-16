@@ -29,7 +29,17 @@ app.use(express.static('public'));
 
 // ROUTES
 
-// motercycle routes
+app.get('/',(req,res)=>{
+    vehicle.find({})
+            .then((data)=>{
+                res.json({found: true, data: data});
+            })
+            .catch((err)=>{
+                console.log(err)
+                res.json({found: false, data: null});
+            })
+})
+
 app.post('/vehicle',(req,res)=>{
     new vehicle(req.body)
         .save()
